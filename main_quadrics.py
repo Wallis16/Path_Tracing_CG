@@ -1,28 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import time
+import matplotlib.pyplot as plt
 
 from geometry import read_light_obj, read_obj, normalize
-from path_tracing import trace
+from quadrics import trace_quadric
 
 aux_time = time.time()
-
-#eye 0.0 0.0 5.7
-#size 200 200
-#ortho -1 -1 1 1
-#background 0.0 0.0 0.0
-#ambient 0.5
-
-#light luzcornell.obj 1.0 1.0 1.0 1.0
-#object <name.obj> red green blue ka kd ks kt n
-
-width = 200
-height = 200
-
-camera = np.array([0, 0, 5.7])
-screen = (-1, 1, 1, -1) # left, top, right, bottom
-
-light = { 'position': np.array([-0.9100, 3.8360, -23.3240]), 'ambient': np.array([1, 1, 1]), 'diffuse': np.array([1, 1, 1]), 'specular': np.array([1, 1, 1]) }
 
 boundings_light, area_light = read_light_obj(name = 'light',path = 'objs/luzcornell.obj',Ia=0.5,r=1,g=1,b=1,Ip=1)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
@@ -40,14 +23,55 @@ boundings6, objs6 = read_obj(name='rightwall',path = 'objs/rightwall.obj',r=0,g=
 #1.0 1.0 1.0 0.3 0.7 0 0 5
 boundings7, objs7 = read_obj(name='back',path = 'objs/back.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5, reflection = 0)
 
-objs = objs1 + objs2 + objs3 + objs4 + objs5 + objs6 + objs7 + area_light
-objs_wo_light = objs1 + objs2 + objs3 + objs4 + objs5 + objs6 + objs7
-#objs = objs1 + objs3
+objs = objs3 + objs4 + objs5 + objs6 + objs7 + area_light
+objs_wo_light = objs3 + objs4 + objs5 + objs6 + objs7
 
-all_boundings = list([boundings1,boundings2,boundings3,boundings4,boundings5,boundings6,boundings7, boundings_light])
-all_boundings_wo_light = list([boundings1,boundings2,boundings3,boundings4,boundings5,boundings6,boundings7])
+quadric1 = [{"a":1,"b":1,"c":1,"d":0,"e":0,"f":0,"g":2,"h":2,"j":28,"k":791,
+  'ambient': np.array([0, 0.3, 0]),
+  'diffuse': np.array([0, 0.7, 0]),
+  'name': 'quadric1',
+  'reflection': 0.5,
+  'shininess': 20,
+  'specular': np.array([0, 0, 0]),
+  'transparency': np.array([0, 0, 0]),
+  'ka':0.3,
+  'kd':0.7,
+  'ks':0,
+  'kt':0}]
 
-#################
+quadric2 = [{"a":1,"b":1,"c":1,"d":0,"e":0,"f":0,"g":-2,"h":2,"j":25,"k":632,
+  'ambient': np.array([0, 0.3, 0.3]),
+  'diffuse': np.array([0, 0.7, 0.7]),
+  'name': 'quadric2',
+  'reflection': 0.5,
+  'shininess': 20,
+  'specular': np.array([0, 0, 0]),
+  'transparency': np.array([0, 0, 0]),
+  'ka':0.3,
+  'kd':0.7,
+  'ks':0,
+  'kt':0}]
+
+x_min, y_min, z_min = -3, -3, -29
+x_max, y_max, z_max = -1, -1, -27
+
+boundings_quadric1 = {'name': quadric1[0]['name'], 'min':np.array([x_min,y_min,z_min]), 'max':np.array([x_max,y_max,z_max])}
+
+x_min, y_min, z_min = 1, -3, -26
+x_max, y_max, z_max = 3, -1, -24
+
+boundings_quadric2 = {'name': quadric2[0]['name'], 'min':np.array([x_min,y_min,z_min]), 'max':np.array([x_max,y_max,z_max])}
+
+##
+quadrics = quadric1 + quadric2
+
+all_boundings = list([boundings3, boundings4, boundings5, boundings6, boundings7, boundings_light, 
+                      boundings_quadric1, boundings_quadric2])
+all_boundings_wo_light = list([boundings3, boundings4, boundings5, boundings6, boundings7,
+                               boundings_quadric1, boundings_quadric2])
+
+screen = (-1, 1, 1, -1)
+camera = np.array([0, 0, 5.7])
 
 height, width = 100, 100
 
@@ -68,18 +92,13 @@ for i, y in enumerate(np.linspace(screen[1], screen[3], height)):
       origin = camera
       direction = normalize(pixel - origin)
 
-      color += trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_light, max_depth = 4)
+      color += trace_quadric(camera, origin, direction, objs, objs_wo_light, area_light, quadrics, all_boundings, max_depth = 4)
 
-    #image[i, j] = np.clip(color/samples, 0, 1)
-    
-    color = color/samples
+    color = np.clip(color/samples, 0, 1)
     image[i, j] = color/(color+1)
-
-    #color = np.clip(color/samples, 0, 1)
-    #image[i, j] = color/(color+1)
 
     cnt+=1
 
     print(round(cnt/(height*width),2),"---",round(time.time()-aux_time), end='\r')
-
+        
 plt.imsave('image.png', image)
