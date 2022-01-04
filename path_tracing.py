@@ -5,7 +5,7 @@ from geometry import names_intersected, nearest_intersected, light_position, nor
 def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_light, max_depth):
 
   color = np.zeros((3))
-  reflection = 1
+  attenuation = 1
 
   for k in range(max_depth):
 
@@ -76,7 +76,6 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
       direction = reflected(direction, normal)
 
     if ray == 'transmission':
-      #n12 = n1/n2
       n12 = 0.67 
       U1 = (n12*(np.dot(normal,direction)) - np.sqrt(1-np.dot((n12**2),1-(np.dot(normal,direction))**2)))
       direction = np.dot(U1,normal) - n12*direction
@@ -85,7 +84,7 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
     origin = shifted_point
     ### 
 
-    if is_shadowed:
+    if is_shadowed or nearest_object["kt"] > 0:
       continue
 
     if k == 0:
@@ -94,10 +93,8 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
 
       # ambiant
       illumination += nearest_object['ambient'] * area_light[0][0]['ambient']
-
       # diffuse
       illumination += nearest_object['diffuse'] * area_light[0][0]['diffuse'] * np.dot(intersection_to_light, normal)
-
       # specular
       intersection_to_camera = normalize(camera - intersection)
       H = normalize(intersection_to_light + intersection_to_camera)
@@ -106,21 +103,17 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
     else:
       # RGB
       illumination = np.zeros((3))
-
       # ambiant
       illumination += nearest_object['ambient'] * area_light[0][0]['ambient']
-
       # diffuse
       illumination += nearest_object['diffuse'] * area_light[0][0]['diffuse'] * np.dot(intersection_to_light, normal)
-
       # specular
       intersection_to_camera = normalize(camera - intersection)
       H = normalize(intersection_to_light + intersection_to_camera)
       illumination += nearest_object['specular'] * area_light[0][0]['specular'] * np.dot(normal, H) ** (nearest_object['shininess'] / 4)
 
-    # reflection
-    color += reflection * illumination
-    reflection *= nearest_object['kd']
-    #reflection *= color*nearest_object['kd']
+    ##
+    color += attenuation * illumination
+    attenuation *= 0.7
 
   return color

@@ -161,7 +161,7 @@ def read_obj(name,path,r,g,b,ka,kd,ks,kt,n,reflection):
                                          list(object_.vertices[int(i[2])-1])]),
                     'ambient': np.array([r*ka,g*ka,b*ka]),
                     'diffuse': np.array([r*kd,g*kd,b*kd]),
-                    'specular': np.array([r*ks,g*ks,b*ks]),
+                    'specular': np.array([ks,ks,ks]),
                     'transparency': np.array([r*kt,g*kt,b*kt]),
                     'shininess': 4*n,
                     'reflection': reflection,

@@ -11,7 +11,7 @@ boundings_light, area_light = read_light_obj(name = 'light',path = 'objs/luzcorn
 #1.0 1.0 1.0 0.3 0.7 0 0 5
 boundings1, objs1 = read_obj(name = 'cube1', path = 'objs/cube1.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5,reflection = 0.5)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
-boundings2, objs2 = read_obj(name = 'cube2', path = 'objs/cube2.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0.5,n = 5,reflection = 0.5)
+boundings2, objs2 = read_obj(name = 'cube2', path = 'objs/cube2.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5,reflection = 0.5)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
 boundings3, objs3 = read_obj(name = 'floor',path = 'objs/floor.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5, reflection = 0)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
@@ -52,15 +52,74 @@ quadric2 = [{"a":1,"b":1,"c":1,"d":0,"e":0,"f":0,"g":-2,"h":2,"j":25,"k":632,
   'ks':0,
   'kt':0}]
 
+quadric3 = [{"a":1,"b":1,"c":1,"d":0,"e":0,"f":0,"g":1,"h":0,"j":22,"k":481,
+  'ambient': np.array([0.3, 0.3, 0.3]),
+  'diffuse': np.array([0.7, 0.7, 0.7]),
+  'name': 'quadric3',
+  'reflection': 0.5,
+  'shininess': 20,
+  'specular': np.array([0, 0, 0]),
+  'transparency': np.array([0, 0, 0]),
+  'ka':0.3,
+  'kd':0.7,
+  'ks':0,
+  'kt':0}]
+
+quadric4 = [{"a":1/6,"b":1/3,"c":1/3,"d":0,"e":0,"f":0,"g":0,"h":0,"j":27/3,"k":242,
+  'ambient': np.array([0.3, 0.3, 0]),
+  'diffuse': np.array([0.7, 0.7, 0]),
+  'name': 'quadric4',
+  'reflection': 0.5,
+  'shininess': 20,
+  'specular': np.array([0, 0, 0]),
+  'transparency': np.array([0, 0, 0]),
+  'ka':0.3,
+  'kd':0.7,
+  'ks':0,
+  'kt':0}]
+
+quadric5 = [{"a":1/2,"b":1/2,"c":0,"d":0,"e":0,"f":0,"g":-1,"h":1/2,"j":1/12,"k":5.17,
+  'ambient': np.array([0.3, 0.3, 0.3]),
+  'diffuse': np.array([0.7, 0.7, 0.7]),
+  'name': 'quadric5',
+  'reflection': 0.5,
+  'shininess': 20,
+  'specular': np.array([0, 0, 0]),
+  'transparency': np.array([0, 0, 0]),
+  'ka':0.3,
+  'kd':0.7,
+  'ks':0,
+  'kt':0}]
+
 x_min, y_min, z_min = -3, -3, -29
 x_max, y_max, z_max = -1, -1, -27
 
 boundings_quadric1 = {'name': quadric1[0]['name'], 'min':np.array([x_min,y_min,z_min]), 'max':np.array([x_max,y_max,z_max])}
 
+x_min, y_min, z_min = -2, -3, -29
+x_max, y_max, z_max = -1, -1, -27
+
+boundings_quadric1_half = {'name': quadric1[0]['name'], 'min':np.array([x_min,y_min,z_min]), 'max':np.array([x_max,y_max,z_max])}
+
 x_min, y_min, z_min = 1, -3, -26
 x_max, y_max, z_max = 3, -1, -24
 
 boundings_quadric2 = {'name': quadric2[0]['name'], 'min':np.array([x_min,y_min,z_min]), 'max':np.array([x_max,y_max,z_max])}
+
+x_min, y_min, z_min = -3, -2, -24
+x_max, y_max, z_max = 1, 2, -20
+
+boundings_quadric3 = {'name': quadric3[0]['name'], 'min':np.array([x_min,y_min,z_min]), 'max':np.array([x_max,y_max,z_max])}
+
+x_min, y_min, z_min = -np.sqrt(6), -np.sqrt(3), -27-np.sqrt(3)
+x_max, y_max, z_max = np.sqrt(6), np.sqrt(3), -27+np.sqrt(3)
+
+boundings_quadric4 = {'name': quadric4[0]['name'], 'min':np.array([x_min,y_min,z_min]), 'max':np.array([x_max,y_max,z_max])}
+
+x_min, y_min, z_min = 2-np.sqrt(7), -1-np.sqrt(4), -33
+x_max, y_max, z_max = 2+np.sqrt(3), -1+np.sqrt(4), -18
+
+boundings_quadric5 = {'name': quadric5[0]['name'], 'min':np.array([x_min,y_min,z_min]), 'max':np.array([x_max,y_max,z_max])}
 
 ##
 quadrics = quadric1 + quadric2
@@ -85,7 +144,7 @@ for i, y in enumerate(np.linspace(screen[1], screen[3], height)):
     
     color = np.zeros((3))
 
-    samples = 5
+    samples = 10
 
     for k in range(samples):
       pixel = np.array([x, y, 0])

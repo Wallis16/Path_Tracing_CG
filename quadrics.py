@@ -88,7 +88,7 @@ def nearest_quadric(origin, direction, quadrics, names_quadrics):
 def trace_quadric(camera, origin, direction, objs, objs_wo_light, area_light, quadrics, all_boundings, max_depth):
 
   color = np.zeros((3))
-  reflection = 1
+  attenuation = 1
 
   for k in range(max_depth):
 
@@ -194,9 +194,8 @@ def trace_quadric(camera, origin, direction, objs, objs_wo_light, area_light, qu
       H = normalize(intersection_to_light + intersection_to_camera)
       illumination += nearest_object['specular'] * area_light[0][0]['specular'] * np.dot(normal, H) ** (nearest_object['shininess'] / 4)
 
-    # reflection
-    color += reflection * illumination
-    reflection *= nearest_object['kd']
-    #reflection *= color*nearest_object['kd']
+    ##
+    color += attenuation * illumination
+    attenuation *= 0.4
 
   return color

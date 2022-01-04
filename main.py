@@ -28,7 +28,7 @@ boundings_light, area_light = read_light_obj(name = 'light',path = 'objs/luzcorn
 #1.0 1.0 1.0 0.3 0.7 0 0 5
 boundings1, objs1 = read_obj(name = 'cube1', path = 'objs/cube1.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5,reflection = 0.5)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
-boundings2, objs2 = read_obj(name = 'cube2', path = 'objs/cube2.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0.5,n = 5,reflection = 0.5)
+boundings2, objs2 = read_obj(name = 'cube2', path = 'objs/cube2.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5,reflection = 0.5)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
 boundings3, objs3 = read_obj(name = 'floor',path = 'objs/floor.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5, reflection = 0)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
@@ -61,22 +61,17 @@ for i, y in enumerate(np.linspace(screen[1], screen[3], height)):
     
     color = np.zeros((3))
 
-    samples = 5
+    samples = 10
 
     for k in range(samples):
       pixel = np.array([x, y, 0])
       origin = camera
       direction = normalize(pixel - origin)
 
-      color += trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_light, max_depth = 4)
-
-    #image[i, j] = np.clip(color/samples, 0, 1)
+      color += trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_light, max_depth = 6)
     
     color = color/samples
     image[i, j] = color/(color+1)
-
-    #color = np.clip(color/samples, 0, 1)
-    #image[i, j] = color/(color+1)
 
     cnt+=1
 
