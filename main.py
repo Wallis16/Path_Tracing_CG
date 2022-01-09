@@ -26,7 +26,7 @@ light = { 'position': np.array([-0.9100, 3.8360, -23.3240]), 'ambient': np.array
 
 boundings_light, area_light = read_light_obj(name = 'light',path = 'objs/luzcornell.obj',Ia=0.5,r=1,g=1,b=1,Ip=1)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
-boundings1, objs1 = read_obj(name = 'cube1', path = 'objs/cube1.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5,reflection = 0.5)
+boundings1, objs1 = read_obj(name = 'cube1', path = 'objs/cube1.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=1,n = 5,reflection = 0.5)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
 boundings2, objs2 = read_obj(name = 'cube2', path = 'objs/cube2.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5,reflection = 0.5)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
@@ -38,7 +38,7 @@ boundings5, objs5 = read_obj(name = 'leftwall',path = 'objs/leftwall.obj',r=1,g=
 #0.0 1.0 0.0 0.3 0.7 0 0 5
 boundings6, objs6 = read_obj(name='rightwall',path = 'objs/rightwall.obj',r=0,g=1,b=0,ka=0.3,kd=0.7,ks=0,kt=0,n = 5, reflection = 0)
 #1.0 1.0 1.0 0.3 0.7 0 0 5
-boundings7, objs7 = read_obj(name='back',path = 'objs/back.obj',r=1,g=1,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5, reflection = 0)
+boundings7, objs7 = read_obj(name='back',path = 'objs/back.obj',r=0,g=0,b=1,ka=0.3,kd=0.7,ks=0,kt=0,n = 5, reflection = 0)
 
 objs = objs1 + objs2 + objs3 + objs4 + objs5 + objs6 + objs7 + area_light
 objs_wo_light = objs1 + objs2 + objs3 + objs4 + objs5 + objs6 + objs7
@@ -49,7 +49,7 @@ all_boundings_wo_light = list([boundings1,boundings2,boundings3,boundings4,bound
 
 #################
 
-height, width = 100, 100
+height, width = 200, 200
 
 image = np.zeros((height, width, 3))
 
@@ -61,16 +61,19 @@ for i, y in enumerate(np.linspace(screen[1], screen[3], height)):
     
     color = np.zeros((3))
 
-    samples = 10
+    samples = 1
 
     for k in range(samples):
       pixel = np.array([x, y, 0])
       origin = camera
       direction = normalize(pixel - origin)
 
-      color += trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_light, max_depth = 6)
+      color += trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_light, max_depth = 5)
     
-    color = color/samples
+    #color = color/samples
+    #image[i, j] = color/(color+1)
+
+    color = np.clip(color/samples, 0, 1)
     image[i, j] = color/(color+1)
 
     cnt+=1

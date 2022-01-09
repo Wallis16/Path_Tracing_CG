@@ -2,6 +2,12 @@ import numpy as np
 
 from geometry import names_intersected, nearest_intersected, light_position, normalize, reflected
 
+def calcularRefracao(n1, n2, vi, vn):
+  cosI = -np.dot(vi, vn)
+  sen2t = ((n1/n2)**2)*(1 - cosI**2)
+  t = (n1/n2)*vi + ((n1/n2)*cosI - np.sqrt(1 - sen2t))*vn
+  return t
+
 def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_light, max_depth):
 
   color = np.zeros((3))
@@ -13,10 +19,6 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
 
     # check for intersections
     nearest_object, min_distance, normal, name = nearest_intersected(objs, origin, direction, names)
-
-    #if name == 'cube2':
-      #if nearest_object['vertexes'][0][2] <= -29 and nearest_object['vertexes'][1][2] <= -29 and nearest_object['vertexes'][2][2] <= -29:
-        #print(ray)
             
     if name == 'light':
       if k == 0:
@@ -29,18 +31,16 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
     # compute intersection point between ray and nearest object
     intersection = origin + min_distance * direction
     
-    if np.dot(normal,direction) > 0:
-      normal*=-1
+    #if np.dot(normal,direction) > 0:
+      #normal*=-1
 
     shifted_point = intersection + 1e-5*normal
-
     light_point = light_position(area_light)
-
     intersection_to_light = normalize(light_point - shifted_point)
 
     names = names_intersected(all_boundings, shifted_point, intersection_to_light)
 
-    _, min_distance, _,aux = nearest_intersected(objs_wo_light, shifted_point, intersection_to_light, names)
+    _, min_distance, _,_ = nearest_intersected(objs_wo_light, shifted_point, intersection_to_light, names)
 
     intersection_to_light_distance = np.linalg.norm(light_point - intersection)
     is_shadowed = min_distance < intersection_to_light_distance
@@ -76,23 +76,29 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
       direction = reflected(direction, normal)
 
     if ray == 'transmission':
-      n12 = 0.67 
-      U1 = (n12*(np.dot(normal,direction)) - np.sqrt(1-np.dot((n12**2),1-(np.dot(normal,direction))**2)))
-      direction = np.dot(U1,normal) - n12*direction
+
+      if (np.dot(normal,direction) > 0):
+        n1 = 1.5
+        n2 = 1
+        direcao = calcularRefracao(n1, n2, direction, -1*normal)
+        normal = -1*normal
+
+      else:
+        n1 = 1
+        n2 = 1.5
+        direcao = calcularRefracao(n1, n2, direction, normal)
+      
       shifted_point = intersection - 1e-5*normal
 
     origin = shifted_point
     ### 
 
-    if is_shadowed or nearest_object["kt"] > 0:
+    if is_shadowed:
       continue
 
     if k == 0:
       # RGB
       illumination = np.zeros((3))
-
-      # ambiant
-      illumination += nearest_object['ambient'] * area_light[0][0]['ambient']
       # diffuse
       illumination += nearest_object['diffuse'] * area_light[0][0]['diffuse'] * np.dot(intersection_to_light, normal)
       # specular
@@ -103,8 +109,6 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
     else:
       # RGB
       illumination = np.zeros((3))
-      # ambiant
-      illumination += nearest_object['ambient'] * area_light[0][0]['ambient']
       # diffuse
       illumination += nearest_object['diffuse'] * area_light[0][0]['diffuse'] * np.dot(intersection_to_light, normal)
       # specular
@@ -114,6 +118,6 @@ def trace(camera, origin, direction, objs, objs_wo_light, all_boundings, area_li
 
     ##
     color += attenuation * illumination
-    attenuation *= 0.7
+    attenuation *= 0.3
 
   return color
