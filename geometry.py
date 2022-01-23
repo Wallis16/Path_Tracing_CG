@@ -134,7 +134,7 @@ class ObjLoader(object):
         except IOError:
             print(".obj file not found.")
 
-def read_obj(name,path,r,g,b,ka,kd,ks,kt,n,reflection):
+def read_obj(name,path,r,g,b,ka,kd,ks,kt,n,refraction):
   objs = []
   object_ = ObjLoader(path)
 
@@ -164,7 +164,7 @@ def read_obj(name,path,r,g,b,ka,kd,ks,kt,n,reflection):
                     'specular': np.array([ks,ks,ks]),
                     'transparency': np.array([r*kt,g*kt,b*kt]),
                     'shininess': 4*n,
-                    'reflection': reflection,
+                    'refraction': refraction,
                     'ka': ka,
                     'kd': kd,
                     'ks': ks,

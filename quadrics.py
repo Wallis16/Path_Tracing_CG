@@ -65,6 +65,12 @@ def quadric_intersect(origin, direction, quadric):
 
   return (quadric,t, normalize(normal),quadric['name'])
 
+def calcularRefracao(n1, n2, vi, vn):
+  cosI = -np.dot(vi, vn)
+  sen2t = ((n1/n2)**2)*(1 - cosI**2)
+  t = (n1/n2)*vi + ((n1/n2)*cosI - np.sqrt(1 - sen2t))*vn
+  return t
+
 def nearest_quadric(origin, direction, quadrics, names_quadrics):
 
   t = [np.inf]
@@ -113,10 +119,6 @@ def trace_quadric(camera, origin, direction, objs, objs_wo_light, area_light, qu
 
     # compute intersection point between ray and nearest object
     intersection = origin + min_distance * direction
-    
-    if np.dot(normal,direction) > 0:
-      normal*=-1
-
     shifted_point = intersection + 1e-5*normal
     light_point = light_position(area_light)
     intersection_to_light = normalize(light_point - shifted_point)
@@ -147,40 +149,53 @@ def trace_quadric(camera, origin, direction, objs, objs_wo_light, area_light, qu
 
     if ray == 'diffuse':
 
-      phi = np.arccos(np.sqrt(np.random.uniform()))
-      theta = 2*np.pi*np.random.uniform()
+      r1 = 2*np.pi*np.random.uniform()
+      r2 = np.random.uniform()
+      r2s = np.sqrt(r2)
 
-      direction_diffuse = np.array([np.sin(phi)*np.cos(theta),np.sin(phi)*np.sin(theta),np.cos(phi)])
+      w = normal
+      v1 = np.array([0,1,0])
+      v2 = np.array([1,0,0])
 
-      if np.dot(normal,direction_diffuse) < 0:
-        direction = -direction_diffuse
+      if np.abs(w[0]) > 0.1:
+        u = v1
       else:
-        direction = direction_diffuse
+        u = v2
+
+      u = normalize(np.cross(u, w))
+      v = np.cross(w, u)
+
+      psi = np.array( [u[0]*np.cos(r1)*r2s + v[0]*np.sin(r1)*r2s + w[0]*np.sqrt(1 - r2), 
+      u[1]*np.cos(r1)*r2s + v[1]*np.sin(r1)*r2s + w[1]*np.sqrt(1 - r2),
+      u[2]*np.cos(r1)*r2s + v[2]*np.sin(r1)*r2s + w[2]*np.sqrt(1 - r2)])
+
+      psi = normalize(psi)
+
+      direction = psi
 
     if ray == 'specular':
       direction = reflected(direction, normal)
 
     if ray == 'transmission':
-      U1 = (n12*(np.dot(normal,direction)) - np.sqrt(1-np.dot((n12**2),1-(np.dot(normal,direction))**2)))
-      direction = np.dot(U1,normal) - n12*direction
+      if (np.dot(normal,direction) > 0):
+        n1 = nearest_object['refraction']
+        n2 = 1
+        direction = calcularRefracao(n1, n2, direction, -1*normal)
+        normal = -1*normal
 
+      else:
+        n1 = 1
+        n2 = nearest_object['refraction']
+        direction = calcularRefracao(n1, n2, direction, normal)
+      
+      print(normal,np.dot(normal,direction))
+      shifted_point = intersection - 1e-5*normal
+    
     origin = shifted_point
     ### 
 
     if is_shadowed:
       continue
-
-    if k == 0:
-      # RGB
-      illumination = np.zeros((3))
-      # ambiant
-      illumination += nearest_object['ambient'] * area_light[0][0]['ambient']
-      # diffuse
-      illumination += nearest_object['diffuse'] * area_light[0][0]['diffuse'] * np.dot(intersection_to_light, normal)
-      # specular
-      intersection_to_camera = normalize(camera - intersection)
-      H = normalize(intersection_to_light + intersection_to_camera)
-      illumination += nearest_object['specular'] * area_light[0][0]['specular'] * np.dot(normal, H) ** (nearest_object['shininess'] / 4)
 
     else:
       # RGB
@@ -196,6 +211,6 @@ def trace_quadric(camera, origin, direction, objs, objs_wo_light, area_light, qu
 
     ##
     color += attenuation * illumination
-    attenuation *= 0.4
+    attenuation *= 0.3
 
   return color
