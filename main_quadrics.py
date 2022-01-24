@@ -37,7 +37,7 @@ quadric1 = [{"a":1,"b":1,"c":1,"d":0,"e":0,"f":0,"g":2,"h":2,"j":28,"k":791,
   'ka':0.3,
   'kd':0.7,
   'ks':0,
-  'kt':1,
+  'kt':0,
   'refraction':1.33}]
 
 quadric2 = [{"a":1,"b":1,"c":1,"d":0,"e":0,"f":0,"g":-2,"h":2,"j":25,"k":632,
@@ -120,8 +120,8 @@ boundings_quadric5 = {'name': quadric5[0]['name'], 'min':np.array([x_min,y_min,z
 ##
 quadrics = quadric1 + quadric2
 
-all_boundings = list([boundings3, boundings4, boundings5, boundings6, boundings7, boundings_light, boundings_quadric1, boundings_quadric2])
-all_boundings_wo_light = list([boundings3, boundings4, boundings5, boundings6, boundings7,boundings_quadric1, boundings_quadric2])
+all_boundings = list([boundings3, boundings4, boundings5, boundings6, boundings7, boundings_light, boundings_quadric1_half,boundings_quadric2])
+all_boundings_wo_light = list([boundings3, boundings4, boundings5, boundings6, boundings7,boundings_quadric1_half,boundings_quadric2])
 
 screen = (-1, 1, 1, -1)
 camera = np.array([0, 0, 5.7])
@@ -138,7 +138,7 @@ for i, y in enumerate(np.linspace(screen[1], screen[3], height)):
     
     color = np.zeros((3))
 
-    samples = 1
+    samples = 3
 
     for k in range(samples):
       pixel = np.array([x, y, 0])

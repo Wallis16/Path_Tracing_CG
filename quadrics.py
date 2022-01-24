@@ -188,7 +188,6 @@ def trace_quadric(camera, origin, direction, objs, objs_wo_light, area_light, qu
         n2 = nearest_object['refraction']
         direction = calcularRefracao(n1, n2, direction, normal)
       
-      print(normal,np.dot(normal,direction))
       shifted_point = intersection - 1e-5*normal
     
     origin = shifted_point
